@@ -310,8 +310,27 @@
             { name: "Recent Period", years: [2017, 2025], description: "Mixed: Contemporary period with ongoing political polarization", governance: "mixed" }
         ];
 
-        // Sample state data
+        // State name to abbreviation lookup table (required because the map data doesn't have abbreviations)
+        const stateAbbreviations = {
+            "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA",
+            "Colorado": "CO", "Connecticut": "CT", "Delaware": "DE", "District of Columbia": "DC",
+            "Florida": "FL", "Georgia": "GA", "Hawaii": "HI", "Idaho": "ID", "Illinois": "IL",
+            "Indiana": "IN", "Iowa": "IA", "Kansas": "KS", "Kentucky": "KY", "Louisiana": "LA",
+            "Maine": "ME", "Maryland": "MD", "Massachusetts": "MA", "Michigan": "MI", "Minnesota": "MN",
+            "Mississippi": "MS", "Missouri": "MO", "Montana": "MT", "Nebraska": "NE", "Nevada": "NV",
+            "New Hampshire": "NH", "New Jersey": "NJ", "New Mexico": "NM", "New York": "NY",
+            "North Carolina": "NC", "North Dakota": "ND", "Ohio": "OH", "Oklahoma": "OK", "Oregon": "OR",
+            "Pennsylvania": "PA", "Rhode Island": "RI", "South Carolina": "SC", "South Dakota": "SD",
+            "Tennessee": "TN", "Texas": "TX", "Utah": "UT", "Vermont": "VT", "Virginia": "VA",
+            "Washington": "WA", "West Virginia": "WV", "Wisconsin": "WI", "Wyoming": "WY"
+        };
+
+        // Sample state data with all 50 states included
         const stateData = {
+            "AL": { governance: { 1776: "elite", 1850: "mixed", 1933: "majority", 1980: "elite" }, party: { 1840: "democratic", 1860: "independent", 1980: "republican" } },
+            "AK": { governance: { 1959: "mixed", 1980: "elite" }, party: { 1959: "democratic", 1980: "republican" } },
+            "AZ": { governance: { 1912: "mixed", 1980: "elite", 2000: "mixed" }, party: { 1912: "democratic", 1950: "republican", 1990: "mixed" } },
+            "AR": { governance: { 1836: "elite", 1933: "majority", 1980: "elite" }, party: { 1840: "democratic", 1980: "republican" } },
             "CA": {
                 governance: { 1776: "elite", 1850: "mixed", 1900: "majority", 1920: "elite", 1933: "majority", 1980: "mixed", 2000: "majority" },
                 party: { 1776: "none", 1850: "democratic", 1900: "republican", 1933: "democratic", 1968: "republican", 1992: "democratic" },
@@ -320,6 +339,32 @@
                 demographics: { 1850: "frontier", 1900: "immigrant_heavy", 1950: "suburban", 2000: "diverse_urban" },
                 labor: { 1900: "weak", 1940: "strong", 1980: "declining", 2000: "mixed" }
             },
+            "CO": { governance: { 1876: "mixed", 1933: "majority", 1980: "mixed" }, party: { 1876: "republican", 1933: "democratic", 1980: "mixed" } },
+            "CT": { governance: { 1776: "elite", 1829: "majority", 1870: "elite", 1933: "majority" }, party: { 1776: "federalist", 1829: "democratic", 1870: "republican" } },
+            "DE": { governance: { 1776: "elite", 1829: "majority", 1933: "mixed" }, party: { 1776: "federalist", 1829: "democratic", 1950: "republican", 2000: "democratic" } },
+            "FL": { governance: { 1845: "elite", 1933: "mixed", 1980: "elite" }, party: { 1845: "democratic", 1980: "republican" } },
+            "GA": { governance: { 1776: "elite", 1830: "mixed", 1933: "majority", 1980: "elite" }, party: { 1776: "none", 1830: "democratic", 1980: "republican" } },
+            "HI": { governance: { 1959: "mixed", 1980: "majority" }, party: { 1959: "democratic" } },
+            "ID": { governance: { 1890: "mixed", 1933: "majority", 1980: "elite" }, party: { 1890: "republican" } },
+            "IL": { governance: { 1818: "mixed", 1870: "elite", 1933: "majority" }, party: { 1818: "democratic", 1860: "republican", 1933: "democratic" } },
+            "IN": { governance: { 1816: "mixed", 1870: "elite", 1933: "majority" }, party: { 1816: "democratic", 1860: "republican", 1933: "democratic" } },
+            "IA": { governance: { 1846: "mixed", 1870: "majority", 1980: "mixed" }, party: { 1846: "democratic", 1860: "republican" } },
+            "KS": { governance: { 1861: "mixed", 1933: "majority", 1980: "elite" }, party: { 1861: "republican" } },
+            "KY": { governance: { 1792: "elite", 1830: "majority", 1933: "majority", 1980: "mixed" }, party: { 1792: "democratic", 1980: "republican" } },
+            "LA": { governance: { 1812: "elite", 1830: "mixed", 1933: "majority", 1980: "elite" }, party: { 1812: "democratic", 1980: "republican" } },
+            "ME": { governance: { 1820: "mixed", 1870: "majority", 1980: "majority" }, party: { 1820: "democratic", 1860: "republican" } },
+            "MD": { governance: { 1776: "elite", 1829: "majority", 1933: "mixed", 1980: "majority" }, party: { 1776: "federalist", 1829: "democratic", 1980: "democratic" } },
+            "MA": { governance: { 1776: "elite", 1829: "majority", 1933: "majority" }, party: { 1776: "federalist", 1829: "democratic", 1980: "democratic" } },
+            "MI": { governance: { 1837: "mixed", 1933: "majority", 1980: "mixed" }, party: { 1837: "democratic", 1860: "republican" } },
+            "MN": { governance: { 1858: "mixed", 1933: "majority", 1980: "mixed" }, party: { 1858: "republican", 1933: "mixed" } },
+            "MS": { governance: { 1817: "elite", 1830: "mixed", 1933: "majority", 1980: "elite" }, party: { 1817: "democratic", 1980: "republican" } },
+            "MO": { governance: { 1821: "mixed", 1933: "majority", 1980: "mixed" }, party: { 1821: "democratic" } },
+            "MT": { governance: { 1889: "mixed", 1933: "majority", 1980: "mixed" }, party: { 1889: "republican", 1933: "democratic" } },
+            "NE": { governance: { 1867: "mixed", 1933: "elite", 1980: "elite" }, party: { 1867: "republican" } },
+            "NV": { governance: { 1864: "mixed", 1933: "elite", 1980: "mixed" }, party: { 1864: "republican", 1933: "democratic", 1980: "republican" } },
+            "NH": { governance: { 1776: "elite", 1829: "majority", 1933: "mixed", 1980: "elite" }, party: { 1776: "federalist", 1829: "democratic" } },
+            "NJ": { governance: { 1776: "elite", 1829: "majority", 1933: "mixed" }, party: { 1776: "federalist", 1829: "democratic", 1980: "mixed" } },
+            "NM": { governance: { 1912: "mixed", 1933: "majority", 1980: "mixed" }, party: { 1912: "democratic", 1980: "mixed" } },
             "NY": {
                 governance: { 1776: "elite", 1829: "majority", 1870: "elite", 1900: "majority", 1933: "majority", 1980: "mixed" },
                 party: { 1776: "federalist", 1829: "democratic", 1860: "republican", 1933: "democratic" },
@@ -327,7 +372,25 @@
                 policy: { 1933: "new_deal_high", 1960: "civil_rights_high" },
                 demographics: { 1850: "immigrant_heavy", 1950: "urban", 2000: "diverse_urban" },
                 labor: { 1900: "strong", 1950: "very_strong", 1980: "declining", 2000: "mixed" }
-            }
+            },
+            "NC": { governance: { 1776: "elite", 1829: "mixed", 1933: "majority", 1980: "elite" }, party: { 1776: "none", 1829: "democratic", 1980: "republican" } },
+            "ND": { governance: { 1889: "mixed", 1933: "elite", 1980: "mixed" }, party: { 1889: "republican", 1933: "democratic" } },
+            "OH": { governance: { 1803: "elite", 1830: "mixed", 1933: "majority", 1980: "mixed" }, party: { 1803: "democratic", 1860: "republican" } },
+            "OK": { governance: { 1907: "mixed", 1933: "majority", 1980: "elite" }, party: { 1907: "democratic", 1980: "republican" } },
+            "OR": { governance: { 1859: "mixed", 1933: "majority", 1980: "mixed", 2000: "majority" }, party: { 1859: "democratic", 1870: "republican", 1960: "democratic" } },
+            "PA": { governance: { 1776: "elite", 1829: "majority", 1870: "elite", 1933: "majority" }, party: { 1776: "federalist", 1829: "democratic", 1860: "republican", 1933: "democratic" } },
+            "RI": { governance: { 1776: "elite", 1829: "majority", 1933: "majority" }, party: { 1776: "federalist", 1829: "democratic", 1920: "republican", 1933: "democratic" } },
+            "SC": { governance: { 1776: "elite", 1829: "elite", 1933: "majority", 1980: "elite" }, party: { 1776: "none", 1829: "democratic", 1980: "republican" } },
+            "SD": { governance: { 1889: "mixed", 1933: "elite", 1980: "elite" }, party: { 1889: "republican" } },
+            "TN": { governance: { 1796: "elite", 1830: "majority", 1933: "majority", 1980: "mixed" }, party: { 1796: "democratic", 1980: "republican" } },
+            "TX": { governance: { 1845: "elite", 1870: "mixed", 1933: "majority", 1980: "elite" }, party: { 1845: "democratic", 1980: "republican" } },
+            "UT": { governance: { 1896: "elite", 1933: "elite", 1980: "elite" }, party: { 1896: "republican" } },
+            "VT": { governance: { 1791: "elite", 1829: "majority", 1933: "mixed", 1980: "mixed" }, party: { 1791: "federalist", 1829: "whig", 1860: "republican", 1990: "democratic" } },
+            "VA": { governance: { 1776: "elite", 1829: "majority", 1933: "mixed", 1980: "mixed" }, party: { 1776: "none", 1829: "democratic", 1980: "mixed" } },
+            "WA": { governance: { 1889: "mixed", 1933: "majority", 1980: "mixed", 2000: "majority" }, party: { 1889: "republican", 1933: "democratic" } },
+            "WV": { governance: { 1863: "mixed", 1933: "majority", 1980: "mixed" }, party: { 1863: "republican", 1933: "democratic" } },
+            "WI": { governance: { 1848: "mixed", 1933: "majority", 1980: "mixed" }, party: { 1848: "democratic", 1860: "republican" } },
+            "WY": { governance: { 1890: "mixed", 1933: "elite", 1980: "elite" }, party: { 1890: "republican" } }
         };
 
         const colors = {
@@ -341,6 +404,7 @@
                 democratic: "#4444FF",
                 republican: "#FF4444", 
                 whig: "#9932CC",
+                independent: "#A9A9A9",
                 none: "#CCCCCC"
             },
             economic: {
@@ -350,7 +414,8 @@
                 financial: "#FFD700",
                 tech: "#9370DB",
                 diversified: "#20B2AA",
-                gold_rush: "#FFD700"
+                gold_rush: "#FFD700",
+                none: "#CCCCCC"
             },
             policy: {
                 new_deal_high: "#006400",
@@ -363,14 +428,16 @@
                 immigrant_heavy: "#FF6347",
                 urban: "#4169E1",
                 suburban: "#32CD32",
-                diverse_urban: "#FF1493"
+                diverse_urban: "#FF1493",
+                none: "#CCCCCC"
             },
             labor: {
                 weak: "#FFB6C1",
                 strong: "#228B22",
                 very_strong: "#006400",
                 declining: "#FFA500",
-                mixed: "#9370DB"
+                mixed: "#9370DB",
+                none: "#CCCCCC"
             }
         };
 
@@ -378,7 +445,7 @@
         let isPlaying = false;
         let animationFrame;
         let speed = 50;
-        let usData; // This variable will hold the geographic data
+        let usData;
 
         const svg = d3.select("#map-svg");
         const tooltip = d3.select("#tooltip");
@@ -401,15 +468,17 @@
         const projection = d3.geoAlbersUsa().fitSize([width, height], { type: "FeatureCollection", features: [] });
         const path = d3.geoPath().projection(projection);
 
-        // Load the geographic data and the historical data
         d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(data => {
             usData = data;
             const states = topojson.feature(usData, usData.objects.states);
+            
+            // Add the abbreviation property to each state object using the lookup table
+            states.features.forEach(d => {
+                d.properties.abbrev = stateAbbreviations[d.properties.name];
+            });
 
-            // Adjust projection to fit the loaded data
             projection.fitSize([width, height], states);
 
-            // Draw the states
             const statePaths = svg.append("g")
                 .attr("class", "states")
                 .selectAll("path")
@@ -419,7 +488,6 @@
                 .attr("d", path)
                 .attr("id", d => `state-${d.properties.abbrev}`);
             
-            // Draw the abbreviations on the states
             const stateLabels = svg.append("g")
                 .attr("class", "state-labels")
                 .selectAll("text")
@@ -438,7 +506,6 @@
             updateMap();
         });
 
-        // Helper function to get the nearest year data
         function getDataForYear(stateId, layer, year) {
             const data = stateData[stateId] ? stateData[stateId][layer] : null;
             if (!data) return "none";
@@ -455,19 +522,16 @@
             return data[nearestYear];
         }
 
-        // Function to update the map colors and info panel
         function updateMap() {
             const layer = layerSelect.value;
             const animate = animateTransitionsCheckbox.checked;
 
-            // Update year display and period indicator
             yearDisplay.text(currentYear);
             const currentPeriod = historicalPeriods.find(p => currentYear >= p.years[0] && currentYear <= p.years[1]);
             if (currentPeriod) {
                 periodIndicator.text(`${currentPeriod.name} (${currentPeriod.years[0]}-${currentPeriod.years[1]}): ${currentPeriod.description}`);
             }
 
-            // Update state colors
             d3.selectAll(".state")
                 .transition().duration(animate ? 500 : 0)
                 .attr("fill", d => {
@@ -476,7 +540,6 @@
                     return colors[layer][value] || "#CCCCCC";
                 });
 
-            // Update the legend
             updateLegend(layer);
         }
 
@@ -500,7 +563,6 @@
             legend.style("display", showLegendCheckbox.checked ? "block" : "none");
         }
 
-        // Event handlers
         function handleMouseOver(event, d) {
             if (!showTooltipsCheckbox.checked) return;
             const layer = layerSelect.value;
@@ -614,6 +676,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 

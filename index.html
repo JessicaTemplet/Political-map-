@@ -5,16 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Comprehensive interactive map showing geographic patterns of US governance, politics, economics, and demographics from 1776-2025">
     <meta name="keywords" content="US history, interactive map, governance, politics, economics, demographics, geographic analysis, American history">
-    <meta name="author" content="Your Name">
+    <meta name="author" content="Marion Fox">
     <meta property="og:title" content="US Governance: Geographic & Historical Analysis">
     <meta property="og:description" content="Interactive map exploring 250 years of American governance patterns across geography, politics, and economics">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="https://yourusername.github.io/us-governance-historical-map/preview.png">
+    <meta property="og:image" content="https://jessicatemplet.com/Political-map-/preview.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="US Governance: Geographic & Historical Analysis">
     <meta name="twitter:description" content="Interactive map of American governance patterns from 1776-2025">
     <title>US Governance: Geographic & Historical Analysis</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -115,6 +118,7 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             padding: 20px;
             margin-bottom: 20px;
+            position: relative;
         }
         
         .info-panel {
@@ -127,7 +131,7 @@
         
         .legend {
             position: absolute;
-            top: 20px;
+            top: 60px;
             right: 20px;
             background: rgba(255, 255, 255, 0.95);
             padding: 15px;
@@ -162,6 +166,20 @@
             stroke-width: 2px;
         }
         
+        .state-label {
+            font-family: sans-serif;
+            pointer-events: none;
+            font-size: 10px;
+            text-anchor: middle;
+            fill: black;
+            font-weight: bold;
+            text-shadow: 
+                -1px -1px 0 #fff,  
+                1px -1px 0 #fff,
+                -1px 1px 0 #fff,
+                1px 1px 0 #fff;
+        }
+        
         .tooltip {
             position: absolute;
             padding: 10px;
@@ -172,6 +190,7 @@
             font-size: 12px;
             opacity: 0;
             transition: opacity 0.2s;
+            z-index: 1000;
         }
         
         .period-indicator {
@@ -275,86 +294,25 @@
     </div>
 
     <script>
-        // Data structures for different historical periods and layers
+        // Historical periods data
         const historicalPeriods = [
-            {
-                name: "Early Republic",
-                years: [1776, 1830],
-                description: "Elite-Focused Governance: Power concentrated among wealthy landowners and merchants",
-                governance: "elite"
-            },
-            {
-                name: "Jacksonian Era", 
-                years: [1829, 1837],
-                description: "Majority-Focused: Expanded suffrage to white men, opposition to National Bank",
-                governance: "majority"
-            },
-            {
-                name: "Antebellum Period",
-                years: [1838, 1869],
-                description: "Mixed/Sectional: Regional tensions over slavery, economic development",
-                governance: "mixed"
-            },
-            {
-                name: "Gilded Age",
-                years: [1870, 1890],
-                description: "Elite-Focused: Railroad barons, industrial magnates dominate politics",
-                governance: "elite"
-            },
-            {
-                name: "Progressive Era",
-                years: [1890, 1920],
-                description: "Majority-Focused: Antitrust laws, labor protections, democratic reforms",
-                governance: "majority"
-            },
-            {
-                name: "Roaring Twenties",
-                years: [1920, 1932],
-                description: "Elite-Focused: Business-friendly policies, limited regulation",
-                governance: "elite"
-            },
-            {
-                name: "New Deal Era",
-                years: [1933, 1945],
-                description: "Majority-Focused: Social programs, labor rights, economic intervention",
-                governance: "majority"
-            },
-            {
-                name: "Postwar Consensus",
-                years: [1945, 1970],
-                description: "Majority-Focused: Middle class expansion, high taxes on wealthy",
-                governance: "majority"
-            },
-            {
-                name: "Civil Rights Era",
-                years: [1950, 1968],
-                description: "Majority-Focused: Expanding democratic participation, civil rights",
-                governance: "majority"
-            },
-            {
-                name: "Conservative Revolution",
-                years: [1980, 2008],
-                description: "Elite-Focused: Deregulation, tax cuts for wealthy, union decline",
-                governance: "elite"
-            },
-            {
-                name: "Obama Era",
-                years: [2009, 2016],
-                description: "Mixed: Healthcare expansion, but continued elite influence",
-                governance: "mixed"
-            },
-            {
-                name: "Recent Period",
-                years: [2017, 2025],
-                description: "Mixed: Contemporary period with ongoing political polarization",
-                governance: "mixed"
-            }
+            { name: "Early Republic", years: [1776, 1830], description: "Elite-Focused Governance: Power concentrated among wealthy landowners and merchants", governance: "elite" },
+            { name: "Jacksonian Era", years: [1829, 1837], description: "Majority-Focused: Expanded suffrage to white men, opposition to National Bank", governance: "majority" },
+            { name: "Antebellum Period", years: [1838, 1869], description: "Mixed/Sectional: Regional tensions over slavery, economic development", governance: "mixed" },
+            { name: "Gilded Age", years: [1870, 1890], description: "Elite-Focused: Railroad barons, industrial magnates dominate politics", governance: "elite" },
+            { name: "Progressive Era", years: [1890, 1920], description: "Majority-Focused: Antitrust laws, labor protections, democratic reforms", governance: "majority" },
+            { name: "Roaring Twenties", years: [1920, 1932], description: "Elite-Focused: Business-friendly policies, limited regulation", governance: "elite" },
+            { name: "New Deal Era", years: [1933, 1945], description: "Majority-Focused: Social programs, labor rights, economic intervention", governance: "majority" },
+            { name: "Postwar Consensus", years: [1945, 1970], description: "Majority-Focused: Middle class expansion, high taxes on wealthy", governance: "majority" },
+            { name: "Civil Rights Era", years: [1950, 1968], description: "Majority-Focused: Expanding democratic participation, civil rights", governance: "majority" },
+            { name: "Conservative Revolution", years: [1980, 2008], description: "Elite-Focused: Deregulation, tax cuts for wealthy, union decline", governance: "elite" },
+            { name: "Obama Era", years: [2009, 2016], description: "Mixed: Healthcare expansion, but continued elite influence", governance: "mixed" },
+            { name: "Recent Period", years: [2017, 2025], description: "Mixed: Contemporary period with ongoing political polarization", governance: "mixed" }
         ];
 
-        // State data with historical information
+        // Sample state data
         const stateData = {
-            // Sample data - in a full implementation, this would be much more comprehensive
-            "California": {
+            "CA": {
                 governance: { 1776: "elite", 1850: "mixed", 1900: "majority", 1920: "elite", 1933: "majority", 1980: "mixed", 2000: "majority" },
                 party: { 1776: "none", 1850: "democratic", 1900: "republican", 1933: "democratic", 1968: "republican", 1992: "democratic" },
                 economic: { 1776: "agricultural", 1850: "gold_rush", 1900: "diversified", 1950: "industrial", 1990: "tech" },
@@ -362,7 +320,7 @@
                 demographics: { 1850: "frontier", 1900: "immigrant_heavy", 1950: "suburban", 2000: "diverse_urban" },
                 labor: { 1900: "weak", 1940: "strong", 1980: "declining", 2000: "mixed" }
             },
-            "New York": {
+            "NY": {
                 governance: { 1776: "elite", 1829: "majority", 1870: "elite", 1900: "majority", 1933: "majority", 1980: "mixed" },
                 party: { 1776: "federalist", 1829: "democratic", 1860: "republican", 1933: "democratic" },
                 economic: { 1776: "commercial", 1850: "industrial", 1900: "financial", 2000: "services" },
@@ -370,7 +328,6 @@
                 demographics: { 1850: "immigrant_heavy", 1950: "urban", 2000: "diverse_urban" },
                 labor: { 1900: "strong", 1950: "very_strong", 1980: "declining", 2000: "mixed" }
             }
-            // More states would be added here...
         };
 
         const colors = {
@@ -392,7 +349,8 @@
                 commercial: "#4682B4",
                 financial: "#FFD700",
                 tech: "#9370DB",
-                diversified: "#20B2AA"
+                diversified: "#20B2AA",
+                gold_rush: "#FFD700"
             },
             policy: {
                 new_deal_high: "#006400",
@@ -416,116 +374,102 @@
             }
         };
 
-        // Initialize variables
         let currentYear = 1776;
-        let currentLayer = 'governance';
         let isPlaying = false;
-        let playInterval;
-        let svg, path, tooltip, legend;
+        let animationFrame;
+        let speed = 50;
+        const abbrevMapping = {}; // A map to store name to abbreviation
 
-        // Initialize the map
-        function initializeMap() {
-            // Check if D3 is loaded
-            if (typeof d3 === 'undefined') {
-                console.error('D3.js failed to load. Retrying in 1 second...');
-                setTimeout(initializeMap, 1000);
-                return;
-            }
+        const svg = d3.select("#map-svg");
+        const tooltip = d3.select("#tooltip");
+        const yearDisplay = d3.select("#yearDisplay");
+        const timeSlider = document.getElementById("timeSlider");
+        const playBtn = document.getElementById("playBtn");
+        const pauseBtn = document.getElementById("pauseBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const speedSelect = document.getElementById("speedSelect");
+        const layerSelect = document.getElementById("layerSelect");
+        const periodIndicator = d3.select("#periodIndicator");
+        const legend = d3.select("#legend");
+        const showLegendCheckbox = document.getElementById("showLegend");
+        const showTooltipsCheckbox = document.getElementById("showTooltips");
+        const animateTransitionsCheckbox = document.getElementById("animateTransitions");
 
-            const width = document.getElementById('map-svg').clientWidth;
-            const height = 600;
+        const width = svg.node().clientWidth;
+        const height = svg.node().clientHeight;
 
-            svg = d3.select("#map-svg")
-                .attr("viewBox", `0 0 ${width} ${height}`);
+        // Use d3-geo to create a projection and path generator
+        const projection = d3.geoAlbersUsa().fitSize([width, height], { type: "FeatureCollection", features: [] });
+        const path = d3.geoPath().projection(projection);
 
-            const projection = d3.geoAlbersUsa()
-                .scale(width * 0.8)
-                .translate([width / 2, height / 2]);
+        // Load the TopoJSON file which contains state boundaries and abbreviations
+        d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
+            const states = topojson.feature(us, us.objects.states);
 
-            path = d3.geoPath(projection);
-
-            tooltip = d3.select("#tooltip");
-
-            // Create a simple US map (simplified version)
-            createSimpleUSMap(svg, width, height);
+            // Create a mapping from state name to abbreviation for easy lookup
+            states.features.forEach(d => {
+                abbrevMapping[d.properties.name] = d.properties.abbrev;
+            });
             
-            // Initialize controls
-            initializeControls();
-            
-            // Update display
-            updateMap();
-            updatePeriodIndicator();
-        }
+            // Adjust projection to fit the loaded data
+            projection.fitSize([width, height], states);
 
-        function createSimpleUSMap(svg, width, height) {
-            // This creates a simplified representation of US states
-            // In a full implementation, you'd load actual TopoJSON data
-            
-            const states = [
-                {name: "California", x: 50, y: 300, width: 100, height: 120},
-                {name: "Texas", x: 350, y: 350, width: 120, height: 100},
-                {name: "Florida", x: 550, y: 400, width: 80, height: 60},
-                {name: "New York", x: 600, y: 150, width: 60, height: 60},
-                {name: "Pennsylvania", x: 580, y: 180, width: 70, height: 50},
-                {name: "Illinois", x: 450, y: 200, width: 60, height: 80},
-                {name: "Ohio", x: 520, y: 190, width: 60, height: 70},
-                {name: "Georgia", x: 550, y: 280, width: 60, height: 80},
-                {name: "North Carolina", x: 580, y: 260, width: 80, height: 50},
-                {name: "Michigan", x: 480, y: 150, width: 60, height: 80},
-                {name: "Washington", x: 80, y: 80, width: 80, height: 60},
-                {name: "Colorado", x: 300, y: 250, width: 70, height: 60},
-                {name: "Arizona", x: 200, y: 320, width: 80, height: 70},
-                {name: "Nevada", x: 120, y: 280, width: 70, height: 80},
-                {name: "Oregon", x: 60, y: 120, width: 80, height: 70}
-            ];
-
-            svg.selectAll(".state")
-                .data(states)
-                .enter()
-                .append("rect")
+            // Draw the states
+            const statePaths = svg.append("g")
+                .attr("class", "states")
+                .selectAll("path")
+                .data(states.features)
+                .join("path")
                 .attr("class", "state")
-                .attr("x", d => d.x)
-                .attr("y", d => d.y) 
-                .attr("width", d => d.width)
-                .attr("height", d => d.height)
-                .attr("rx", 5)
+                .attr("d", path)
+                .attr("data-state-abbrev", d => d.properties.abbrev) // Add a data attribute for easier lookup
+                .attr("data-state-name", d => d.properties.name)
+                .attr("id", d => `state-${d.properties.abbrev}`); // Use abbreviation as ID
+
+            // Draw the abbreviations on the states
+            const stateLabels = svg.append("g")
+                .attr("class", "state-labels")
+                .selectAll("text")
+                .data(states.features)
+                .join("text")
+                .attr("x", d => path.centroid(d)[0])
+                .attr("y", d => path.centroid(d)[1])
+                .attr("class", "state-label")
+                .text(d => d.properties.abbrev);
+
+            // Add event listeners for the states (now on the paths)
+            statePaths
                 .on("mouseover", handleMouseOver)
                 .on("mouseout", handleMouseOut)
-                .on("click", handleStateClick);
+                .on("click", handleClick);
 
-            // Add state labels
-            svg.selectAll(".state-label")
-                .data(states)
-                .enter()
-                .append("text")
-                .attr("class", "state-label")
-                .attr("x", d => d.x + d.width/2)
-                .attr("y", d => d.y + d.height/2)
-                .attr("text-anchor", "middle")
-                .attr("dominant-baseline", "central")
-                .style("font-size", "10px")
-                .style("pointer-events", "none")
-                .text(d => d.name);
+            // Initial render
+            updateMap();
+        }).catch(error => {
+            console.error("Error loading the GeoJSON file: ", error);
+            d3.select(".map-container").html("<p style='text-align:center; color:red;'>Failed to load map data. Please check your internet connection and the file path.</p>");
+        });
+
+        // Helper function to get the nearest year data
+        function getDataForYear(stateId, layer, year) {
+            const data = stateData[stateId] ? stateData[stateId][layer] : null;
+            if (!data) return "none";
+
+            const years = Object.keys(data).map(Number).sort((a, b) => a - b);
+            let nearestYear = years[0];
+            for (let i = 0; i < years.length; i++) {
+                if (years[i] <= year) {
+                    nearestYear = years[i];
+                } else {
+                    break;
+                }
+            }
+            return data[nearestYear];
         }
 
-        function initializeControls() {
-            // Time slider
-            const timeSlider = document.getElementById('timeSlider');
-            const yearDisplay = document.getElementById('yearDisplay');
-            
-            timeSlider.addEventListener('input', (e) => {
-                currentYear = parseInt(e.target.value);
-                yearDisplay.textContent = currentYear;
-                updateMap();
-                updatePeriodIndicator();
-            });
+        // Function to update the map colors and info panel
+        function updateMap() {
+            const layer = layerSelect.value;
+            const animate = animateTransitionsCheckbox.checked;
 
-            // Layer selector
-            document.getElementById('layerSelect').addEventListener('change', (e) => {
-                currentLayer = e.target.value;
-                updateMap();
-                updateLegend();
-            });
-
-            // Play controls
-            document.getElementById('playBtn').addEve
+            // Update

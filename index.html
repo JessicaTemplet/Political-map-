@@ -472,4 +472,162 @@
             const layer = layerSelect.value;
             const animate = animateTransitionsCheckbox.checked;
 
+            // Update year display and period indicator
+            yearDisplay.text(currentYear);
+            const currentPeriod = historicalPeriods.find(p => currentYear >= p.years[0] && currentYear <= p.years[1]);
+            if (currentPeriod) {
+                periodIndicator.text(`${currentPeriod.name} (${currentPeriod.years[0]}-${currentPeriod.years[1]}): ${currentPeriod.description}`);
+            }
+
+            // Update state colors
+            d3.selectAll(".state")
+                .transition().duration(animate ? 500 : 0)
+                .attr("fill", d => {
+                    const stateAbbrev = d.properties.abbrev;
+                    const value = getDataForYear(stateAbbrev, layer, currentYear);
+                    return colors[layer][value] || "#CCCCCC";
+                });
+
+            // Update the legend
+            updateLegend(layer);
+        }
+
+        function updateLegend(layer) {
+            const legendData = colors[layer];
+            legend.html(''); // Clear previous legend
+            legend.append("h4").text("Legend");
+            
+            const legendItems = legend.selectAll(".legend-item")
+                .data(Object.keys(legendData))
+                .join("div")
+                .attr("class", "legend-item");
+            
+            legendItems.append("div")
+                .attr("class", "legend-color")
+                .style("background-color", d => legendData[d]);
+            
+            legendItems.append("span")
+                .text(d => d.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+            
+            // Hide/show legend based on checkbox
+            legend.style("display", showLegendCheckbox.checked ? "block" : "none");
+        }
+
+        // Event handlers
+        function handleMouseOver(event, d) {
+            if (!showTooltipsCheckbox.checked) return;
+            const layer = layerSelect.value;
+            const value = getDataForYear(d.properties.abbrev, layer, currentYear);
+            tooltip.style("opacity", 1)
+                .html(`
+                    <strong>${d.properties.name} (${d.properties.abbrev})</strong><br/>
+                    Year: ${currentYear}<br/>
+                    Data Layer: ${layer.replace(/\b\w/g, c => c.toUpperCase())}<br/>
+                    Value: ${value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}`
+                )
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        }
+
+        function handleMouseOut() {
+            if (!showTooltipsCheckbox.checked) return;
+            tooltip.style("opacity", 0);
+        }
+
+        function handleClick(event, d) {
+            const layer = layerSelect.value;
+            const stateAbbrev = d.properties.abbrev;
+            const stateName = d.properties.name;
+
+            let infoContent = `<h3>${stateName} (${stateAbbrev}) - ${currentYear}</h3>`;
+            infoContent += `<p><strong>Data Layer:</strong> ${layer.replace(/\b\w/g, c => c.toUpperCase())}</p>`;
+            
+            if (stateData[stateAbbrev]) {
+                const stateHist = stateData[stateAbbrev][layer] || {};
+                infoContent += "<h4>Historical Timeline:</h4><ul>";
+                Object.keys(stateHist).sort((a,b) => a - b).forEach(year => {
+                    infoContent += `<li><strong>${year}:</strong> ${stateHist[year]}</li>`;
+                });
+                infoContent += "</ul>";
+            } else {
+                infoContent += "<p>No detailed historical data available for this state.</p>";
+            }
+
+            d3.select("#infoPanel").html(infoContent);
+        }
+
+        // Controls
+        timeSlider.addEventListener("input", (e) => {
+            currentYear = +e.target.value;
+            updateMap();
+        });
+
+        playBtn.addEventListener("click", () => {
+            if (isPlaying) return;
+            isPlaying = true;
+            playBtn.disabled = true;
+            pauseBtn.disabled = false;
+            animateMap();
+        });
+
+        pauseBtn.addEventListener("click", () => {
+            isPlaying = false;
+            playBtn.disabled = false;
+            pauseBtn.disabled = true;
+            cancelAnimationFrame(animationFrame);
+        });
+
+        resetBtn.addEventListener("click", () => {
+            isPlaying = false;
+            currentYear = 1776;
+            timeSlider.value = currentYear;
+            playBtn.disabled = false;
+            pauseBtn.disabled = true;
+            cancelAnimationFrame(animationFrame);
+            updateMap();
+        });
+
+        speedSelect.addEventListener("change", (e) => {
+            speed = +e.target.value;
+        });
+
+        layerSelect.addEventListener("change", updateMap);
+
+        showLegendCheckbox.addEventListener("change", () => {
+            legend.style("display", showLegendCheckbox.checked ? "block" : "none");
+        });
+        showTooltipsCheckbox.addEventListener("change", () => {
+            tooltip.style("opacity", 0);
+        });
+        animateTransitionsCheckbox.addEventListener("change", () => {
+            // No action needed here, updateMap will handle it
+        });
+
+        function animateMap() {
+            if (!isPlaying) return;
+            
+            let lastTimestamp = null;
+            const step = (timestamp) => {
+                if (!lastTimestamp) lastTimestamp = timestamp;
+                const elapsed = timestamp - lastTimestamp;
+                
+                if (elapsed > speed) {
+                    currentYear = (currentYear < 2025) ? currentYear + 1 : 1776;
+                    timeSlider.value = currentYear;
+                    updateMap();
+                    lastTimestamp = timestamp;
+                }
+                animationFrame = requestAnimationFrame(step);
+            };
+            animationFrame = requestAnimationFrame(step);
+        }
+
+        // Initial call to set up the legend
+        updateLegend(layerSelect.value);
+    </script>
+</body>
+</html>
+
+
+
             // Update

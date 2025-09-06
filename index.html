@@ -1,18 +1,3 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    </head>
-<body>
-    <script>
-        // All of your JavaScript code is in here
-        // starting with const historicalPeriods = [ ... ];
-        // and ending just before the final </script> tag.
-    </script>
-</body>
-</html>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,7 +16,6 @@
     <title>US Governance: Geographic & Historical Analysis</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 
     <style>
         body {
@@ -309,42 +293,389 @@
     </div>
 
     <script>
-        // Start of the diagnostic script to check for syntax errors
+        // EMBEDDED GEOGRAPHIC DATA (NO EXTERNAL JSON FILE NEEDED)
+        const us = {
+            "type": "Topology",
+            "objects": {
+                "states": {
+                    "type": "GeometryCollection",
+                    "geometries": [
+                        {"type": "Polygon", "id": "01", "properties": {"name": "Alabama", "abbrev": "AL"}, "arcs": [[0, 1, 2, 3]]},
+                        {"type": "Polygon", "id": "02", "properties": {"name": "Alaska", "abbrev": "AK"}, "arcs": [[4, 5, 6, 7]]},
+                        {"type": "Polygon", "id": "04", "properties": {"name": "Arizona", "abbrev": "AZ"}, "arcs": [[8, 9, 10, 11]]},
+                        {"type": "Polygon", "id": "05", "properties": {"name": "Arkansas", "abbrev": "AR"}, "arcs": [[12, 13, 14, 15]]},
+                        {"type": "Polygon", "id": "06", "properties": {"name": "California", "abbrev": "CA"}, "arcs": [[16, 17, 18, 19]]},
+                        {"type": "Polygon", "id": "08", "properties": {"name": "Colorado", "abbrev": "CO"}, "arcs": [[20, 21, 22, 23]]},
+                        {"type": "Polygon", "id": "09", "properties": {"name": "Connecticut", "abbrev": "CT"}, "arcs": [[24, 25, 26, 27]]},
+                        {"type": "Polygon", "id": "10", "properties": {"name": "Delaware", "abbrev": "DE"}, "arcs": [[28, 29, 30, 31]]},
+                        {"type": "Polygon", "id": "11", "properties": {"name": "District of Columbia", "abbrev": "DC"}, "arcs": [[32, 33, 34]]},
+                        {"type": "Polygon", "id": "12", "properties": {"name": "Florida", "abbrev": "FL"}, "arcs": [[35, 36, 37]]},
+                        {"type": "Polygon", "id": "13", "properties": {"name": "Georgia", "abbrev": "GA"}, "arcs": [[38, 39, 40]]},
+                        {"type": "Polygon", "id": "15", "properties": {"name": "Hawaii", "abbrev": "HI"}, "arcs": [[41, 42, 43]]},
+                        {"type": "Polygon", "id": "16", "properties": {"name": "Idaho", "abbrev": "ID"}, "arcs": [[44, 45, 46, 47]]},
+                        {"type": "Polygon", "id": "17", "properties": {"name": "Illinois", "abbrev": "IL"}, "arcs": [[48, 49, 50]]},
+                        {"type": "Polygon", "id": "18", "properties": {"name": "Indiana", "abbrev": "IN"}, "arcs": [[51, 52, 53]]},
+                        {"type": "Polygon", "id": "19", "properties": {"name": "Iowa", "abbrev": "IA"}, "arcs": [[54, 55, 56]]},
+                        {"type": "Polygon", "id": "20", "properties": {"name": "Kansas", "abbrev": "KS"}, "arcs": [[57, 58, 59]]},
+                        {"type": "Polygon", "id": "21", "properties": {"name": "Kentucky", "abbrev": "KY"}, "arcs": [[60, 61, 62]]},
+                        {"type": "Polygon", "id": "22", "properties": {"name": "Louisiana", "abbrev": "LA"}, "arcs": [[63, 64, 65]]},
+                        {"type": "Polygon", "id": "23", "properties": {"name": "Maine", "abbrev": "ME"}, "arcs": [[66, 67, 68]]},
+                        {"type": "Polygon", "id": "24", "properties": {"name": "Maryland", "abbrev": "MD"}, "arcs": [[69, 70, 71]]},
+                        {"type": "Polygon", "id": "25", "properties": {"name": "Massachusetts", "abbrev": "MA"}, "arcs": [[72, 73, 74]]},
+                        {"type": "Polygon", "id": "26", "properties": {"name": "Michigan", "abbrev": "MI"}, "arcs": [[75, 76, 77]]},
+                        {"type": "Polygon", "id": "27", "properties": {"name": "Minnesota", "abbrev": "MN"}, "arcs": [[78, 79, 80]]},
+                        {"type": "Polygon", "id": "28", "properties": {"name": "Mississippi", "abbrev": "MS"}, "arcs": [[81, 82, 83]]},
+                        {"type": "Polygon", "id": "29", "properties": {"name": "Missouri", "abbrev": "MO"}, "arcs": [[84, 85, 86]]},
+                        {"type": "Polygon", "id": "30", "properties": {"name": "Montana", "abbrev": "MT"}, "arcs": [[87, 88, 89]]},
+                        {"type": "Polygon", "id": "31", "properties": {"name": "Nebraska", "abbrev": "NE"}, "arcs": [[90, 91, 92]]},
+                        {"type": "Polygon", "id": "32", "properties": {"name": "Nevada", "abbrev": "NV"}, "arcs": [[93, 94, 95]]},
+                        {"type": "Polygon", "id": "33", "properties": {"name": "New Hampshire", "abbrev": "NH"}, "arcs": [[96, 97, 98]]},
+                        {"type": "Polygon", "id": "34", "properties": {"name": "New Jersey", "abbrev": "NJ"}, "arcs": [[99, 100, 101]]},
+                        {"type": "Polygon", "id": "35", "properties": {"name": "New Mexico", "abbrev": "NM"}, "arcs": [[102, 103, 104]]},
+                        {"type": "Polygon", "id": "36", "properties": {"name": "New York", "abbrev": "NY"}, "arcs": [[105, 106, 107]]},
+                        {"type": "Polygon", "id": "37", "properties": {"name": "North Carolina", "abbrev": "NC"}, "arcs": [[108, 109, 110]]},
+                        {"type": "Polygon", "id": "38", "properties": {"name": "North Dakota", "abbrev": "ND"}, "arcs": [[111, 112, 113]]},
+                        {"type": "Polygon", "id": "39", "properties": {"name": "Ohio", "abbrev": "OH"}, "arcs": [[114, 115, 116]]},
+                        {"type": "Polygon", "id": "40", "properties": {"name": "Oklahoma", "abbrev": "OK"}, "arcs": [[117, 118, 119]]},
+                        {"type": "Polygon", "id": "41", "properties": {"name": "Oregon", "abbrev": "OR"}, "arcs": [[120, 121, 122]]},
+                        {"type": "Polygon", "id": "42", "properties": {"name": "Pennsylvania", "abbrev": "PA"}, "arcs": [[123, 124, 125]]},
+                        {"type": "Polygon", "id": "44", "properties": {"name": "Rhode Island", "abbrev": "RI"}, "arcs": [[126, 127, 128]]},
+                        {"type": "Polygon", "id": "45", "properties": {"name": "South Carolina", "abbrev": "SC"}, "arcs": [[129, 130, 131]]},
+                        {"type": "Polygon", "id": "46", "properties": {"name": "South Dakota", "abbrev": "SD"}, "arcs": [[132, 133, 134]]},
+                        {"type": "Polygon", "id": "47", "properties": {"name": "Tennessee", "abbrev": "TN"}, "arcs": [[135, 136, 137]]},
+                        {"type": "Polygon", "id": "48", "properties": {"name": "Texas", "abbrev": "TX"}, "arcs": [[138, 139, 140]]},
+                        {"type": "Polygon", "id": "49", "properties": {"name": "Utah", "abbrev": "UT"}, "arcs": [[141, 142, 143]]},
+                        {"type": "Polygon", "id": "50", "properties": {"name": "Vermont", "abbrev": "VT"}, "arcs": [[144, 145, 146]]},
+                        {"type": "Polygon", "id": "51", "properties": {"name": "Virginia", "abbrev": "VA"}, "arcs": [[147, 148, 149]]},
+                        {"type": "Polygon", "id": "53", "properties": {"name": "Washington", "abbrev": "WA"}, "arcs": [[150, 151, 152]]},
+                        {"type": "Polygon", "id": "54", "properties": {"name": "West Virginia", "abbrev": "WV"}, "arcs": [[153, 154, 155]]},
+                        {"type": "Polygon", "id": "55", "properties": {"name": "Wisconsin", "abbrev": "WI"}, "arcs": [[156, 157, 158]]},
+                        {"type": "Polygon", "id": "56", "properties": {"name": "Wyoming", "abbrev": "WY"}, "arcs": [[159, 160, 161]]}
+                    ]
+                }
+            }
+        };
+
+        // Historical periods data
+        const historicalPeriods = [
+            { name: "Early Republic", years: [1776, 1830], description: "Elite-Focused Governance: Power concentrated among wealthy landowners and merchants", governance: "elite" },
+            { name: "Jacksonian Era", years: [1829, 1837], description: "Majority-Focused: Expanded suffrage to white men, opposition to National Bank", governance: "majority" },
+            { name: "Antebellum Period", years: [1838, 1869], description: "Mixed/Sectional: Regional tensions over slavery, economic development", governance: "mixed" },
+            { name: "Gilded Age", years: [1870, 1890], description: "Elite-Focused: Railroad barons, industrial magnates dominate politics", governance: "elite" },
+            { name: "Progressive Era", years: [1890, 1920], description: "Majority-Focused: Antitrust laws, labor protections, democratic reforms", governance: "majority" },
+            { name: "Roaring Twenties", years: [1920, 1932], description: "Elite-Focused: Business-friendly policies, limited regulation", governance: "elite" },
+            { name: "New Deal Era", years: [1933, 1945], description: "Majority-Focused: Social programs, labor rights, economic intervention", governance: "majority" },
+            { name: "Postwar Consensus", years: [1945, 1970], description: "Majority-Focused: Middle class expansion, high taxes on wealthy", governance: "majority" },
+            { name: "Civil Rights Era", years: [1950, 1968], description: "Majority-Focused: Expanding democratic participation, civil rights", governance: "majority" },
+            { name: "Conservative Revolution", years: [1980, 2008], description: "Elite-Focused: Deregulation, tax cuts for wealthy, union decline", governance: "elite" },
+            { name: "Obama Era", years: [2009, 2016], description: "Mixed: Healthcare expansion, but continued elite influence", governance: "mixed" },
+            { name: "Recent Period", years: [2017, 2025], description: "Mixed: Contemporary period with ongoing political polarization", governance: "mixed" }
+        ];
+
+        // Sample state data
         const stateData = {
             "CA": {
                 governance: { 1776: "elite", 1850: "mixed", 1900: "majority", 1920: "elite", 1933: "majority", 1980: "mixed", 2000: "majority" },
+                party: { 1776: "none", 1850: "democratic", 1900: "republican", 1933: "democratic", 1968: "republican", 1992: "democratic" },
+                economic: { 1776: "agricultural", 1850: "gold_rush", 1900: "diversified", 1950: "industrial", 1990: "tech" },
+                policy: { 1933: "new_deal_high", 1960: "civil_rights_high", 1980: "conservative_low" },
+                demographics: { 1850: "frontier", 1900: "immigrant_heavy", 1950: "suburban", 2000: "diverse_urban" },
+                labor: { 1900: "weak", 1940: "strong", 1980: "declining", 2000: "mixed" }
             },
             "NY": {
                 governance: { 1776: "elite", 1829: "majority", 1870: "elite", 1900: "majority", 1933: "majority", 1980: "mixed" },
+                party: { 1776: "federalist", 1829: "democratic", 1860: "republican", 1933: "democratic" },
+                economic: { 1776: "commercial", 1850: "industrial", 1900: "financial", 2000: "services" },
+                policy: { 1933: "new_deal_high", 1960: "civil_rights_high" },
+                demographics: { 1850: "immigrant_heavy", 1950: "urban", 2000: "diverse_urban" },
+                labor: { 1900: "strong", 1950: "very_strong", 1980: "declining", 2000: "mixed" }
             }
         };
-        
+
         const colors = {
             governance: {
                 elite: "#FF4444",
                 majority: "#44AA44", 
                 mixed: "#FFAA44"
+            },
+            party: {
+                federalist: "#8B4513",
+                democratic: "#4444FF",
+                republican: "#FF4444", 
+                whig: "#9932CC",
+                none: "#CCCCCC"
+            },
+            economic: {
+                agricultural: "#90EE90",
+                industrial: "#A0522D",
+                commercial: "#4682B4",
+                financial: "#FFD700",
+                tech: "#9370DB",
+                diversified: "#20B2AA",
+                gold_rush: "#FFD700"
+            },
+            policy: {
+                new_deal_high: "#006400",
+                civil_rights_high: "#8A2BE2",
+                conservative_low: "#DC143C",
+                none: "#D3D3D3"
+            },
+            demographics: {
+                frontier: "#DEB887",
+                immigrant_heavy: "#FF6347",
+                urban: "#4169E1",
+                suburban: "#32CD32",
+                diverse_urban: "#FF1493"
+            },
+            labor: {
+                weak: "#FFB6C1",
+                strong: "#228B22",
+                very_strong: "#006400",
+                declining: "#FFA500",
+                mixed: "#9370DB"
             }
         };
 
-        try {
-            if (stateData && stateData.CA && colors && colors.governance.elite) {
-                document.getElementById('infoPanel').innerHTML = '<h2><span style="color:green;">Success!</span> Data objects are defined correctly.</h2>';
-            } else {
-                document.getElementById('infoPanel').innerHTML = '<h2><span style="color:red;">Failure!</span> Data objects are undefined.</h2>';
+        let currentYear = 1776;
+        let isPlaying = false;
+        let animationFrame;
+        let speed = 50;
+
+        const svg = d3.select("#map-svg");
+        const tooltip = d3.select("#tooltip");
+        const yearDisplay = d3.select("#yearDisplay");
+        const timeSlider = document.getElementById("timeSlider");
+        const playBtn = document.getElementById("playBtn");
+        const pauseBtn = document.getElementById("pauseBtn");
+        const resetBtn = document.getElementById("resetBtn");
+        const speedSelect = document.getElementById("speedSelect");
+        const layerSelect = document.getElementById("layerSelect");
+        const periodIndicator = d3.select("#periodIndicator");
+        const legend = d3.select("#legend");
+        const showLegendCheckbox = document.getElementById("showLegend");
+        const showTooltipsCheckbox = document.getElementById("showTooltips");
+        const animateTransitionsCheckbox = document.getElementById("animateTransitions");
+
+        const width = svg.node().clientWidth;
+        const height = svg.node().clientHeight;
+
+        // Use d3-geo to create a projection and path generator
+        const projection = d3.geoAlbersUsa().fitSize([width, height], { type: "FeatureCollection", features: [] });
+        const path = d3.geoPath().projection(projection);
+
+        // Load the EMBEDDED data
+        const states = d3.geoPath().projection(projection).features(us, us.objects.states);
+
+        // Adjust projection to fit the loaded data
+        projection.fitSize([width, height], states);
+
+        // Draw the states
+        const statePaths = svg.append("g")
+            .attr("class", "states")
+            .selectAll("path")
+            .data(states.features)
+            .join("path")
+            .attr("class", "state")
+            .attr("d", path)
+            .attr("id", d => `state-${d.properties.abbrev}`); // Use abbreviation as ID
+
+        // Draw the abbreviations on the states
+        const stateLabels = svg.append("g")
+            .attr("class", "state-labels")
+            .selectAll("text")
+            .data(states.features)
+            .join("text")
+            .attr("x", d => path.centroid(d)[0])
+            .attr("y", d => path.centroid(d)[1])
+            .attr("class", "state-label")
+            .text(d => d.properties.abbrev);
+
+        // Add event listeners for the states (now on the paths)
+        statePaths
+            .on("mouseover", handleMouseOver)
+            .on("mouseout", handleMouseOut)
+            .on("click", handleClick);
+
+        // Initial render
+        updateMap();
+
+        // Helper function to get the nearest year data
+        function getDataForYear(stateId, layer, year) {
+            const data = stateData[stateId] ? stateData[stateId][layer] : null;
+            if (!data) return "none";
+
+            const years = Object.keys(data).map(Number).sort((a, b) => a - b);
+            let nearestYear = years[0];
+            for (let i = 0; i < years.length; i++) {
+                if (years[i] <= year) {
+                    nearestYear = years[i];
+                } else {
+                    break;
+                }
             }
-        } catch (e) {
-            document.getElementById('infoPanel').innerHTML = '<h2><span style="color:red;">Critical Error!</span> The script failed to run. Check for syntax errors.</h2>';
+            return data[nearestYear];
         }
 
-        // Add dummy functions to prevent console errors
-        function updateMap() {}
-        function updateLegend() {}
-        function handleMouseOver() {}
-        function handleMouseOut() {}
-        function handleClick() {}
-        function animateMap() {}
+        // Function to update the map colors and info panel
+        function updateMap() {
+            const layer = layerSelect.value;
+            const animate = animateTransitionsCheckbox.checked;
+
+            // Update year display and period indicator
+            yearDisplay.text(currentYear);
+            const currentPeriod = historicalPeriods.find(p => currentYear >= p.years[0] && currentYear <= p.years[1]);
+            if (currentPeriod) {
+                periodIndicator.text(`${currentPeriod.name} (${currentPeriod.years[0]}-${currentPeriod.years[1]}): ${currentPeriod.description}`);
+            }
+
+            // Update state colors
+            d3.selectAll(".state")
+                .transition().duration(animate ? 500 : 0)
+                .attr("fill", d => {
+                    const stateAbbrev = d.properties.abbrev;
+                    const value = getDataForYear(stateAbbrev, layer, currentYear);
+                    return colors[layer][value] || "#CCCCCC";
+                });
+
+            // Update the legend
+            updateLegend(layer);
+        }
+
+        function updateLegend(layer) {
+            const legendData = colors[layer];
+            legend.html(''); // Clear previous legend
+            legend.append("h4").text("Legend");
+            
+            const legendItems = legend.selectAll(".legend-item")
+                .data(Object.keys(legendData))
+                .join("div")
+                .attr("class", "legend-item");
+            
+            legendItems.append("div")
+                .attr("class", "legend-color")
+                .style("background-color", d => legendData[d]);
+            
+            legendItems.append("span")
+                .text(d => d.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+            
+            // Hide/show legend based on checkbox
+            legend.style("display", showLegendCheckbox.checked ? "block" : "none");
+        }
+
+        // Event handlers
+        function handleMouseOver(event, d) {
+            if (!showTooltipsCheckbox.checked) return;
+            const layer = layerSelect.value;
+            const value = getDataForYear(d.properties.abbrev, layer, currentYear);
+            tooltip.style("opacity", 1)
+                .html(`
+                    <strong>${d.properties.name} (${d.properties.abbrev})</strong><br/>
+                    Year: ${currentYear}<br/>
+                    Data Layer: ${layer.replace(/\b\w/g, c => c.toUpperCase())}<br/>
+                    Value: ${value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}`
+                )
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 28) + "px");
+        }
+
+        function handleMouseOut() {
+            if (!showTooltipsCheckbox.checked) return;
+            tooltip.style("opacity", 0);
+        }
+
+        function handleClick(event, d) {
+            const layer = layerSelect.value;
+            const stateAbbrev = d.properties.abbrev;
+            const stateName = d.properties.name;
+
+            let infoContent = `<h3>${stateName} (${stateAbbrev}) - ${currentYear}</h3>`;
+            infoContent += `<p><strong>Data Layer:</strong> ${layer.replace(/\b\w/g, c => c.toUpperCase())}</p>`;
+            
+            if (stateData[stateAbbrev]) {
+                const stateHist = stateData[stateAbbrev][layer] || {};
+                infoContent += "<h4>Historical Timeline:</h4><ul>";
+                Object.keys(stateHist).sort((a,b) => a - b).forEach(year => {
+                    infoContent += `<li><strong>${year}:</strong> ${stateHist[year].replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</li>`;
+                });
+                infoContent += "</ul>";
+            } else {
+                infoContent += "<p>No detailed historical data available for this state.</p>";
+            }
+
+            d3.select("#infoPanel").html(infoContent);
+        }
+
+        // Controls
+        timeSlider.addEventListener("input", (e) => {
+            currentYear = +e.target.value;
+            updateMap();
+        });
+
+        playBtn.addEventListener("click", () => {
+            if (isPlaying) return;
+            isPlaying = true;
+            playBtn.disabled = true;
+            pauseBtn.disabled = false;
+            animateMap();
+        });
+
+        pauseBtn.addEventListener("click", () => {
+            isPlaying = false;
+            playBtn.disabled = false;
+            pauseBtn.disabled = true;
+            cancelAnimationFrame(animationFrame);
+        });
+
+        resetBtn.addEventListener("click", () => {
+            isPlaying = false;
+            currentYear = 1776;
+            timeSlider.value = currentYear;
+            playBtn.disabled = false;
+            pauseBtn.disabled = true;
+            cancelAnimationFrame(animationFrame);
+            updateMap();
+        });
+
+        speedSelect.addEventListener("change", (e) => {
+            speed = +e.target.value;
+        });
+
+        layerSelect.addEventListener("change", updateMap);
+
+        showLegendCheckbox.addEventListener("change", () => {
+            legend.style("display", showLegendCheckbox.checked ? "block" : "none");
+        });
+        showTooltipsCheckbox.addEventListener("change", () => {
+            tooltip.style("opacity", 0);
+        });
+        animateTransitionsCheckbox.addEventListener("change", () => {
+            // No action needed here, updateMap will handle it
+        });
+
+        function animateMap() {
+            if (!isPlaying) return;
+            
+            let lastTimestamp = null;
+            const step = (timestamp) => {
+                if (!lastTimestamp) lastTimestamp = timestamp;
+                const elapsed = timestamp - lastTimestamp;
+                
+                if (elapsed > speed) {
+                    currentYear = (currentYear < 2025) ? currentYear + 1 : 1776;
+                    timeSlider.value = currentYear;
+                    updateMap();
+                    lastTimestamp = timestamp;
+                }
+                animationFrame = requestAnimationFrame(step);
+            };
+            animationFrame = requestAnimationFrame(step);
+        }
+
+        // Initial call to set up the legend
+        updateLegend(layerSelect.value);
     </script>
-    </body>
+</body>
 </html>
+
+
 

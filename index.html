@@ -2,6 +2,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    </head>
+<body>
+    <script>
+        // All of your JavaScript code is in here
+        // starting with const historicalPeriods = [ ... ];
+        // and ending just before the final </script> tag.
+    </script>
+</body>
+</html>
+
+Here is the complete code with the diagnostic script already in place.
+For the safest and most reliable result, just copy this entire block and paste it into your index.html file, completely replacing the old content. This way, you don't have to worry about finding the exact starting and ending points.
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Comprehensive interactive map showing geographic patterns of US governance, politics, economics, and demographics from 1776-2025">
@@ -295,329 +310,45 @@
     </div>
 
     <script>
-        // Historical periods data
-        const historicalPeriods = [
-            { name: "Early Republic", years: [1776, 1830], description: "Elite-Focused Governance: Power concentrated among wealthy landowners and merchants", governance: "elite" },
-            { name: "Jacksonian Era", years: [1829, 1837], description: "Majority-Focused: Expanded suffrage to white men, opposition to National Bank", governance: "majority" },
-            { name: "Antebellum Period", years: [1838, 1869], description: "Mixed/Sectional: Regional tensions over slavery, economic development", governance: "mixed" },
-            { name: "Gilded Age", years: [1870, 1890], description: "Elite-Focused: Railroad barons, industrial magnates dominate politics", governance: "elite" },
-            { name: "Progressive Era", years: [1890, 1920], description: "Majority-Focused: Antitrust laws, labor protections, democratic reforms", governance: "majority" },
-            { name: "Roaring Twenties", years: [1920, 1932], description: "Elite-Focused: Business-friendly policies, limited regulation", governance: "elite" },
-            { name: "New Deal Era", years: [1933, 1945], description: "Majority-Focused: Social programs, labor rights, economic intervention", governance: "majority" },
-            { name: "Postwar Consensus", years: [1945, 1970], description: "Majority-Focused: Middle class expansion, high taxes on wealthy", governance: "majority" },
-            { name: "Civil Rights Era", years: [1950, 1968], description: "Majority-Focused: Expanding democratic participation, civil rights", governance: "majority" },
-            { name: "Conservative Revolution", years: [1980, 2008], description: "Elite-Focused: Deregulation, tax cuts for wealthy, union decline", governance: "elite" },
-            { name: "Obama Era", years: [2009, 2016], description: "Mixed: Healthcare expansion, but continued elite influence", governance: "mixed" },
-            { name: "Recent Period", years: [2017, 2025], description: "Mixed: Contemporary period with ongoing political polarization", governance: "mixed" }
-        ];
-
-        // Sample state data
+        // Start of the diagnostic script to check for syntax errors
         const stateData = {
             "CA": {
                 governance: { 1776: "elite", 1850: "mixed", 1900: "majority", 1920: "elite", 1933: "majority", 1980: "mixed", 2000: "majority" },
-                party: { 1776: "none", 1850: "democratic", 1900: "republican", 1933: "democratic", 1968: "republican", 1992: "democratic" },
-                economic: { 1776: "agricultural", 1850: "gold_rush", 1900: "diversified", 1950: "industrial", 1990: "tech" },
-                policy: { 1933: "new_deal_high", 1960: "civil_rights_high", 1980: "conservative_low" },
-                demographics: { 1850: "frontier", 1900: "immigrant_heavy", 1950: "suburban", 2000: "diverse_urban" },
-                labor: { 1900: "weak", 1940: "strong", 1980: "declining", 2000: "mixed" }
             },
             "NY": {
                 governance: { 1776: "elite", 1829: "majority", 1870: "elite", 1900: "majority", 1933: "majority", 1980: "mixed" },
-                party: { 1776: "federalist", 1829: "democratic", 1860: "republican", 1933: "democratic" },
-                economic: { 1776: "commercial", 1850: "industrial", 1900: "financial", 2000: "services" },
-                policy: { 1933: "new_deal_high", 1960: "civil_rights_high" },
-                demographics: { 1850: "immigrant_heavy", 1950: "urban", 2000: "diverse_urban" },
-                labor: { 1900: "strong", 1950: "very_strong", 1980: "declining", 2000: "mixed" }
             }
         };
-
+        
         const colors = {
             governance: {
                 elite: "#FF4444",
                 majority: "#44AA44", 
                 mixed: "#FFAA44"
-            },
-            party: {
-                federalist: "#8B4513",
-                democratic: "#4444FF",
-                republican: "#FF4444", 
-                whig: "#9932CC",
-                none: "#CCCCCC"
-            },
-            economic: {
-                agricultural: "#90EE90",
-                industrial: "#A0522D",
-                commercial: "#4682B4",
-                financial: "#FFD700",
-                tech: "#9370DB",
-                diversified: "#20B2AA",
-                gold_rush: "#FFD700"
-            },
-            policy: {
-                new_deal_high: "#006400",
-                civil_rights_high: "#8A2BE2",
-                conservative_low: "#DC143C",
-                none: "#D3D3D3"
-            },
-            demographics: {
-                frontier: "#DEB887",
-                immigrant_heavy: "#FF6347",
-                urban: "#4169E1",
-                suburban: "#32CD32",
-                diverse_urban: "#FF1493"
-            },
-            labor: {
-                weak: "#FFB6C1",
-                strong: "#228B22",
-                very_strong: "#006400",
-                declining: "#FFA500",
-                mixed: "#9370DB"
             }
         };
 
-        let currentYear = 1776;
-        let isPlaying = false;
-        let animationFrame;
-        let speed = 50;
-
-        const svg = d3.select("#map-svg");
-        const tooltip = d3.select("#tooltip");
-        const yearDisplay = d3.select("#yearDisplay");
-        const timeSlider = document.getElementById("timeSlider");
-        const playBtn = document.getElementById("playBtn");
-        const pauseBtn = document.getElementById("pauseBtn");
-        const resetBtn = document.getElementById("resetBtn");
-        const speedSelect = document.getElementById("speedSelect");
-        const layerSelect = document.getElementById("layerSelect");
-        const periodIndicator = d3.select("#periodIndicator");
-        const legend = d3.select("#legend");
-        const showLegendCheckbox = document.getElementById("showLegend");
-        const showTooltipsCheckbox = document.getElementById("showTooltips");
-        const animateTransitionsCheckbox = document.getElementById("animateTransitions");
-
-        const width = svg.node().clientWidth;
-        const height = svg.node().clientHeight;
-
-        // Use d3-geo to create a projection and path generator
-        const projection = d3.geoAlbersUsa().fitSize([width, height], { type: "FeatureCollection", features: [] });
-        const path = d3.geoPath().projection(projection);
-
-        // D3 handles loading the TopoJSON file
-        d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
-            const states = topojson.feature(us, us.objects.states);
-
-            // Adjust projection to fit the loaded data
-            projection.fitSize([width, height], states);
-
-            // Draw the states
-            const statePaths = svg.append("g")
-                .attr("class", "states")
-                .selectAll("path")
-                .data(states.features)
-                .join("path")
-                .attr("class", "state")
-                .attr("d", path)
-                .attr("id", d => `state-${d.properties.abbrev}`); // Use abbreviation as ID
-
-            // Draw the abbreviations on the states
-            const stateLabels = svg.append("g")
-                .attr("class", "state-labels")
-                .selectAll("text")
-                .data(states.features)
-                .join("text")
-                .attr("x", d => path.centroid(d)[0])
-                .attr("y", d => path.centroid(d)[1])
-                .attr("class", "state-label")
-                .text(d => d.properties.abbrev);
-
-            // Add event listeners for the states (now on the paths)
-            statePaths
-                .on("mouseover", handleMouseOver)
-                .on("mouseout", handleMouseOut)
-                .on("click", handleClick);
-
-            // Initial render
-            updateMap();
-        }).catch(error => {
-            console.error("Error loading the GeoJSON file: ", error);
-            d3.select(".map-container").html("<p style='text-align:center; color:red;'>Failed to load map data. Please check your internet connection and the file path.</p>");
-        });
-
-        // Helper function to get the nearest year data
-        function getDataForYear(stateId, layer, year) {
-            const data = stateData[stateId] ? stateData[stateId][layer] : null;
-            if (!data) return "none";
-
-            const years = Object.keys(data).map(Number).sort((a, b) => a - b);
-            let nearestYear = years[0];
-            for (let i = 0; i < years.length; i++) {
-                if (years[i] <= year) {
-                    nearestYear = years[i];
-                } else {
-                    break;
-                }
-            }
-            return data[nearestYear];
-        }
-
-        // Function to update the map colors and info panel
-        function updateMap() {
-            const layer = layerSelect.value;
-            const animate = animateTransitionsCheckbox.checked;
-
-            // Update year display and period indicator
-            yearDisplay.text(currentYear);
-            const currentPeriod = historicalPeriods.find(p => currentYear >= p.years[0] && currentYear <= p.years[1]);
-            if (currentPeriod) {
-                periodIndicator.text(`${currentPeriod.name} (${currentPeriod.years[0]}-${currentPeriod.years[1]}): ${currentPeriod.description}`);
-            }
-
-            // Update state colors
-            d3.selectAll(".state")
-                .transition().duration(animate ? 500 : 0)
-                .attr("fill", d => {
-                    const stateAbbrev = d.properties.abbrev;
-                    const value = getDataForYear(stateAbbrev, layer, currentYear);
-                    return colors[layer][value] || "#CCCCCC";
-                });
-
-            // Update the legend
-            updateLegend(layer);
-        }
-
-        function updateLegend(layer) {
-            const legendData = colors[layer];
-            legend.html(''); // Clear previous legend
-            legend.append("h4").text("Legend");
-            
-            const legendItems = legend.selectAll(".legend-item")
-                .data(Object.keys(legendData))
-                .join("div")
-                .attr("class", "legend-item");
-            
-            legendItems.append("div")
-                .attr("class", "legend-color")
-                .style("background-color", d => legendData[d]);
-            
-            legendItems.append("span")
-                .text(d => d.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
-            
-            // Hide/show legend based on checkbox
-            legend.style("display", showLegendCheckbox.checked ? "block" : "none");
-        }
-
-        // Event handlers
-        function handleMouseOver(event, d) {
-            if (!showTooltipsCheckbox.checked) return;
-            const layer = layerSelect.value;
-            const value = getDataForYear(d.properties.abbrev, layer, currentYear);
-            tooltip.style("opacity", 1)
-                .html(`
-                    <strong>${d.properties.name} (${d.properties.abbrev})</strong><br/>
-                    Year: ${currentYear}<br/>
-                    Data Layer: ${layer.replace(/\b\w/g, c => c.toUpperCase())}<br/>
-                    Value: ${value.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}`
-                )
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 28) + "px");
-        }
-
-        function handleMouseOut() {
-            if (!showTooltipsCheckbox.checked) return;
-            tooltip.style("opacity", 0);
-        }
-
-        function handleClick(event, d) {
-            const layer = layerSelect.value;
-            const stateAbbrev = d.properties.abbrev;
-            const stateName = d.properties.name;
-
-            let infoContent = `<h3>${stateName} (${stateAbbrev}) - ${currentYear}</h3>`;
-            infoContent += `<p><strong>Data Layer:</strong> ${layer.replace(/\b\w/g, c => c.toUpperCase())}</p>`;
-            
-            if (stateData[stateAbbrev]) {
-                const stateHist = stateData[stateAbbrev][layer] || {};
-                infoContent += "<h4>Historical Timeline:</h4><ul>";
-                Object.keys(stateHist).sort((a,b) => a - b).forEach(year => {
-                    infoContent += `<li><strong>${year}:</strong> ${stateHist[year].replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</li>`;
-                });
-                infoContent += "</ul>";
+        try {
+            if (stateData && stateData.CA && colors && colors.governance.elite) {
+                document.getElementById('infoPanel').innerHTML = '<h2><span style="color:green;">Success!</span> Data objects are defined correctly.</h2>';
             } else {
-                infoContent += "<p>No detailed historical data available for this state.</p>";
+                document.getElementById('infoPanel').innerHTML = '<h2><span style="color:red;">Failure!</span> Data objects are undefined.</h2>';
             }
-
-            d3.select("#infoPanel").html(infoContent);
+        } catch (e) {
+            document.getElementById('infoPanel').innerHTML = '<h2><span style="color:red;">Critical Error!</span> The script failed to run. Check for syntax errors.</h2>';
         }
 
-        // Controls
-        timeSlider.addEventListener("input", (e) => {
-            currentYear = +e.target.value;
-            updateMap();
-        });
-
-        playBtn.addEventListener("click", () => {
-            if (isPlaying) return;
-            isPlaying = true;
-            playBtn.disabled = true;
-            pauseBtn.disabled = false;
-            animateMap();
-        });
-
-        pauseBtn.addEventListener("click", () => {
-            isPlaying = false;
-            playBtn.disabled = false;
-            pauseBtn.disabled = true;
-            cancelAnimationFrame(animationFrame);
-        });
-
-        resetBtn.addEventListener("click", () => {
-            isPlaying = false;
-            currentYear = 1776;
-            timeSlider.value = currentYear;
-            playBtn.disabled = false;
-            pauseBtn.disabled = true;
-            cancelAnimationFrame(animationFrame);
-            updateMap();
-        });
-
-        speedSelect.addEventListener("change", (e) => {
-            speed = +e.target.value;
-        });
-
-        layerSelect.addEventListener("change", updateMap);
-
-        showLegendCheckbox.addEventListener("change", () => {
-            legend.style("display", showLegendCheckbox.checked ? "block" : "none");
-        });
-        showTooltipsCheckbox.addEventListener("change", () => {
-            tooltip.style("opacity", 0);
-        });
-        animateTransitionsCheckbox.addEventListener("change", () => {
-            // No action needed here, updateMap will handle it
-        });
-
-        function animateMap() {
-            if (!isPlaying) return;
-            
-            let lastTimestamp = null;
-            const step = (timestamp) => {
-                if (!lastTimestamp) lastTimestamp = timestamp;
-                const elapsed = timestamp - lastTimestamp;
-                
-                if (elapsed > speed) {
-                    currentYear = (currentYear < 2025) ? currentYear + 1 : 1776;
-                    timeSlider.value = currentYear;
-                    updateMap();
-                    lastTimestamp = timestamp;
-                }
-                animationFrame = requestAnimationFrame(step);
-            };
-            animationFrame = requestAnimationFrame(step);
-        }
-
-        // Initial call to set up the legend
-        updateLegend(layerSelect.value);
+        // Add dummy functions to prevent console errors
+        function updateMap() {}
+        function updateLegend() {}
+        function handleMouseOver() {}
+        function handleMouseOut() {}
+        function handleClick() {}
+        function animateMap() {}
     </script>
-</body>
+    </body>
 </html>
+
+After you copy, paste, and commit, please let me know which of the three messages appears in the info panel.
+
 

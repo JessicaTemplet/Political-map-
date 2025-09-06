@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -378,7 +379,6 @@
         let isPlaying = false;
         let animationFrame;
         let speed = 50;
-        const abbrevMapping = {}; // A map to store name to abbreviation
 
         const svg = d3.select("#map-svg");
         const tooltip = d3.select("#tooltip");
@@ -402,15 +402,10 @@
         const projection = d3.geoAlbersUsa().fitSize([width, height], { type: "FeatureCollection", features: [] });
         const path = d3.geoPath().projection(projection);
 
-        // Load the TopoJSON file which contains state boundaries and abbreviations
+        // D3 handles loading the TopoJSON file
         d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
             const states = topojson.feature(us, us.objects.states);
 
-            // Create a mapping from state name to abbreviation for easy lookup
-            states.features.forEach(d => {
-                abbrevMapping[d.properties.name] = d.properties.abbrev;
-            });
-            
             // Adjust projection to fit the loaded data
             projection.fitSize([width, height], states);
 
@@ -422,8 +417,6 @@
                 .join("path")
                 .attr("class", "state")
                 .attr("d", path)
-                .attr("data-state-abbrev", d => d.properties.abbrev) // Add a data attribute for easier lookup
-                .attr("data-state-name", d => d.properties.name)
                 .attr("id", d => `state-${d.properties.abbrev}`); // Use abbreviation as ID
 
             // Draw the abbreviations on the states
@@ -546,7 +539,7 @@
                 const stateHist = stateData[stateAbbrev][layer] || {};
                 infoContent += "<h4>Historical Timeline:</h4><ul>";
                 Object.keys(stateHist).sort((a,b) => a - b).forEach(year => {
-                    infoContent += `<li><strong>${year}:</strong> ${stateHist[year]}</li>`;
+                    infoContent += `<li><strong>${year}:</strong> ${stateHist[year].replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</li>`;
                 });
                 infoContent += "</ul>";
             } else {
@@ -628,6 +621,3 @@
 </body>
 </html>
 
-
-
-            // Update
